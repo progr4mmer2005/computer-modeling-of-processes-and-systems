@@ -1,9 +1,0 @@
-# Temporary build and preview files
-tmp/
-
-# Microsoft Office lock files
-~$*
-
-# Windows metadata
-Thumbs.db
-Desktop.ini
