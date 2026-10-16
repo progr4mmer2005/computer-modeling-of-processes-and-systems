@@ -80,6 +80,32 @@ class Report:
         ppr.append(title_sect)
         brk.append(ppr)
         final_sect.addprevious(brk)
+        self._contents()
+
+    def _contents(self):
+        """СОДЕРЖАНИЕ: поле TOC по заголовкам 1-3 уровней; страницы проставляет Word при save()."""
+        head = self.doc.add_paragraph("Содержание", style="Структурный заголовок")
+        head.paragraph_format.page_break_before = False
+        _set(head._p.get_or_add_pPr(), "w:outlineLvl", **{"w:val": 9})  # сам себя в оглавление не включает
+        par = self.doc.add_paragraph()
+        par.paragraph_format.first_line_indent = Cm(0)
+        for kind, text in (("begin", None), (None, ' TOC \\o "1-3" \\h \\z \\u '), ("separate", None),
+                           (None, None), ("end", None)):
+            run = par.add_run()
+            if kind:
+                fld = OxmlElement("w:fldChar")
+                fld.set(qn("w:fldCharType"), kind)
+                if kind == "begin":
+                    fld.set(qn("w:dirty"), "true")
+                run._r.append(fld)
+            elif text:
+                instr = OxmlElement("w:instrText")
+                instr.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+                instr.text = text
+                run._r.append(instr)
+            else:
+                run.text = "Содержание обновляется в Word: правый клик → «Обновить поле»."
+        self.page_break()
 
     # ---------- оформление ----------
 
@@ -360,6 +386,24 @@ class Report:
         self.doc.core_properties.author = STUDENT
         self.doc.core_properties.title = path.stem
         self.doc.save(str(path))
+        update_toc(path)
+
+
+def update_toc(path):
+    """Заполняет содержание номерами страниц через Microsoft Word (tools/update_toc.ps1).
+    Без Word документ помечается так, чтобы Word обновил поля при открытии."""
+    import subprocess
+    script = Path(__file__).with_name("update_toc.ps1")
+    result = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                             str(script), str(Path(path).resolve())],
+                            capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if result.returncode == 0:
+        print(result.stdout.strip())
+        return
+    print("Word недоступен, содержание обновится при открытии:", result.stderr.strip()[:200])
+    doc = docx.Document(str(path))
+    _set(doc.settings.element, "w:updateFields", **{"w:val": "true"})
+    doc.save(str(path))
 
 
 # ---------- картинка вывода консоли ----------
