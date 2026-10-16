@@ -10,6 +10,7 @@
 | `preview_docx.py` | Превью отчета: PDF и PNG всех страниц, листы-сводки по 3 страницы (папка `preview/`) |
 | `pdf_to_images.py` | Рендер страниц PDF (методичек) в PNG, при `--text` – еще и текст |
 | `check_html_links.py` | Проверка ссылок-якорей в HTML-шпаргалках из `защита/` |
+| `embed_guide_images.py` | Встраивание графиков в HTML-шпаргалки (data URI), чтобы файл открывался отдельно от проекта; после пересчета графиков запустить снова |
 | `fix_guide_css.py` | Исправление стилей блоков в HTML-шпаргалках (подпись блока на отдельной строке, рамка) |
 
 ## Порядок пересборки
@@ -20,6 +21,7 @@ cd lab4_python; python -X utf8 lab4.py; cd ..
 python -X utf8 tools/build_lab3_report.py
 python -X utf8 tools/build_lab4_report.py
 python tools/preview_docx.py Отчет_лабораторная_3_вариант_12.docx
+python tools/embed_guide_images.py
 python tools/check_html_links.py
 ```
 
