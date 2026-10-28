@@ -1,28 +1,7 @@
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
-set "PY="
-where py >nul 2>nul
-if not errorlevel 1 set "PY=py -3"
-if defined PY goto install
-where python >nul 2>nul
-if not errorlevel 1 set "PY=python"
-if defined PY goto install
-echo Python not found. Install Python 3.10+ from https://www.python.org and tick "Add to PATH".
-pause
-exit /b 1
-:install
-echo [1/2] Installing libraries: numpy, scipy, matplotlib, openpyxl, pypdfium2 ...
-%PY% -m pip install --disable-pip-version-check -q -r requirements.txt
-if errorlevel 1 (
-    echo Failed to install libraries. Check the internet connection.
-    pause
-    exit /b 1
-)
-echo [2/2] Running lab4.py ...
-echo.
+where py >nul 2>nul && (set PY=py -3) || (set PY=python)
+%PY% -m pip install -q -r requirements.txt
 %PY% -X utf8 lab4.py
-if errorlevel 1 echo Program finished with an error.
-echo.
-echo Results: %~dp0results
 pause
