@@ -4,7 +4,9 @@
 |------|------------|
 | `report_kit.py` | Общий модуль сборки отчетов: шаблон диплома из `references/` (основной шрифт 10 pt), титульный лист из `references/титульный лист.docx`, заголовки, таблицы без заливки, рисунки и формулы с нумерацией, содержание (поле TOC, страницы проставляются через Word при сохранении), листинги кода в 3 колонки (Consolas 5 pt), картинки вывода консоли |
 | `build_lab3_report.py` | Отчет по лабе 3 из `lab3_python/results/results.json` и рисунков |
-| `build_lab4_report.py` | Отчет по лабе 4 из `lab4_python/results/results.json`, рисунков и картинок Excel |
+| `build_lab4_report.py` | Короткий отчет по лабе 4: запускает `lab4_python/lab4.py`, берет из него числа и вывод консоли |
+| `build_lab5_report.py` | То же для лабы 5 (`lab5_python/lab5.py`) |
+| `make_guides.py` | Сборка HTML-шпаргалок лаб 4 и 5 из `tools/guides/*_body.html` и `guide_style.css.html`, встраивает картинки |
 | `update_toc.ps1` | Обновление содержания и полей в готовом docx через Microsoft Word (вызывается из `report_kit.py`) |
 | `docx_to_pdf.ps1` | Конвертация docx в PDF через Microsoft Word |
 | `preview_docx.py` | Превью отчета: PDF и PNG всех страниц, листы-сводки по 3 страницы (папка `preview/`) |
