@@ -61,13 +61,15 @@ print(f"Лучшая модель: {best}, R² = {r2[best]:.4f} ({r2[best] * 100
 
 print("\n3. ТЕСНОТА СВЯЗИ И ЗНАЧИМОСТЬ ЛИНЕЙНОЙ МОДЕЛИ")
 if abs(r) < 0.3:
+    closeness = "практически отсутствует"
+elif abs(r) < 0.5:
     closeness = "слабая"
 elif abs(r) < 0.7:
     closeness = "умеренная"
 else:
     closeness = "сильная"
-direction = "положительная" if r > 0 else "отрицательная"
-print(f"r = {r:.4f}: связь {closeness}, {direction}")
+direction = "прямая" if r > 0 else "обратная"
+print(f"r = {r:.4f}: связь вероятностная, {direction}; теснота связи - {closeness} (таблица 4 методички)")
 F_linear = r ** 2 / (1 - r ** 2) * (n - 2)
 F_critical = stats.f.ppf(0.95, 1, n - 2)
 print(f"F = {F_linear:.3f}, критическое F(0,05; 1; {n - 2}) = {F_critical:.3f}")
@@ -80,7 +82,29 @@ others = np.arange(n) != i_max
 r2_without = np.corrcoef(x[others], y[others])[0, 1] ** 2
 print(f"Без точки с наибольшим y ({y[i_max]} при x = {x[i_max]}): R² = {r2_without:.4f}")
 
-print("\n4. ПРОГНОЗ")
+print("\n4. ОБРАТНАЯ РЕГРЕССИЯ, ДИСПЕРСИИ И ДОВЕРИТЕЛЬНЫЕ ИНТЕРВАЛЫ")
+b1 = (n * sum_xy - sum_x * sum_y) / (n * sum_y2 - sum_y ** 2)
+b0 = (sum_x - b1 * sum_y) / n
+print(f"b1 = (nΣxy - ΣxΣy) / (nΣy² - (Σy)²) = {b1:.7f}")
+print(f"b0 = (Σx - b1·Σy) / n = {b0:.5f}")
+print(f"Прямая регрессия:   y = {a0:.4f} {a1:+.2f}·x")
+print(f"Обратная регрессия: x = {b0:.5f} {b1:+.7f}·y")
+print(f"Проверка: a1·b1 = {a1 * b1:.4f} = r²")
+t_student = stats.t.ppf(1 - 0.05 / 2, n - 2)
+print(f"t(p = 0,05; ν = n - 2 = {n - 2}) = {t_student:.3f}")
+intervals = {}
+for name, values in (("x", x), ("y", y)):
+    mean = values.mean()
+    S2 = ((values ** 2).sum() - values.sum() ** 2 / n) / (n - 1)
+    S_mean = np.sqrt(S2 / n)
+    delta = t_student * S_mean
+    digits = 2 if int(f"{delta:e}"[0]) <= 3 else 1
+    decimals = digits - 1 - int(np.floor(np.log10(delta)))
+    intervals[name] = (mean, S2, S_mean, delta, f"{mean:.{decimals}f} ± {delta:.{decimals}f}")
+    print(f"{name}: среднее = {mean:.5g}, S² = {S2:.4g}, S_ср = √(S²/n) = {S_mean:.4g}, Δ = t·S_ср = {delta:.4g}")
+    print(f"   результат: {name} = {intervals[name][4]}")
+
+print("\n5. ПРОГНОЗ")
 y_best = models[best][1](x_forecast)
 print(f"Прогноз возможен при R² >= 75 %. У лучшей модели R² = {r2[best] * 100:.1f} %")
 if r2[best] >= 0.75:
@@ -90,15 +114,20 @@ else:
     print(f"Формально {best.lower()} модель дала бы y({x_forecast}) = {y_best:.2f}, но ей верить нельзя")
 print(f"Значение x = {x_forecast} больше максимума данных {x.max()} в {x_forecast / x.max():.1f} раза: это экстраполяция")
 
-print("\n5. ПОЛИНОМЫ РАЗНЫХ СТЕПЕНЕЙ")
+print("\n6. ПОДБОР НЕЛИНЕЙНОЙ РЕГРЕССИИ С R² >= 75 %")
+z = 1 / x
+h1 = (n * (z * y).sum() - z.sum() * sum_y) / (n * (z ** 2).sum() - z.sum() ** 2)
+h0 = (sum_y - h1 * z.sum()) / n
+r2_hyper = np.corrcoef(y, h0 + h1 * z)[0, 1] ** 2
+print(f"Гипербола (z = 1/x): y = {h0:.3f} {h1:+.5f}/x, R² = {r2_hyper:.4f}")
 degrees = [1, 2, 3, 4, 5, 6]
 r2_poly = []
 for d in degrees:
     c = np.polyfit(x, y, d)
     r2_poly.append(np.corrcoef(y, np.polyval(c, x))[0, 1] ** 2)
-    print(f"степень {d}: R² = {r2_poly[-1]:.4f}")
-if max(r2_poly) < 0.75:
-    print("Ни один полином до 6-й степени не даёт R² >= 75 %")
+    print(f"полином степени {d}: R² = {r2_poly[-1]:.4f}")
+if max(r2_poly + [r2_hyper]) < 0.75:
+    print("Ни гипербола, ни полиномы до 6-й степени не дают R² >= 75 %")
     print("Рост R² с ростом степени - это подгонка под шум, а не связь")
 
 grid = np.linspace(x.min(), x.max(), 200)
@@ -126,5 +155,20 @@ plt.legend()
 plt.grid(alpha=0.3)
 fig.tight_layout()
 fig.savefig(folder / "02_poly_degree.png", dpi=150)
+plt.close(fig)
+
+y_grid = np.linspace(y.min(), y.max(), 200)
+fig = plt.figure(figsize=(7, 4.5))
+plt.scatter(x, y, color="black", s=14, label="эксперимент")
+plt.plot(grid, a0 + a1 * grid, color="red", label=f"прямая: y = {a0:.3f} {a1:+.2f}·x")
+plt.plot(b0 + b1 * y_grid, y_grid, color="blue", label=f"обратная: x = {b0:.5f} {b1:+.7f}·y")
+plt.scatter([x.mean()], [y.mean()], color="green", s=50, zorder=3, label="точка средних")
+plt.xlabel("Cu_воды, мг/л")
+plt.ylabel("Cu_волосы, мкг/г")
+plt.title("Прямая и обратная регрессия")
+plt.legend(fontsize=8)
+plt.grid(alpha=0.3)
+fig.tight_layout()
+fig.savefig(folder / "03_regression_lines.png", dpi=150)
 plt.close(fig)
 print(f"\nГрафики сохранены в папке {folder}")
