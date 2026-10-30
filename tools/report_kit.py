@@ -408,12 +408,17 @@ def update_toc(path):
 
 # ---------- картинка вывода консоли ----------
 
-def console_png(lines, path, title=None, width_chars=None, font_size=15):
-    """Рисует реальный текст вывода программы в окне в стиле консоли Windows."""
+def console_png(lines, path, title=None, width_chars=None, font_size=15, light=False):
+    """Рисует реальный текст вывода программы в окне в стиле консоли Windows.
+    light=True – черный текст на белом фоне (для печати)."""
     from PIL import Image, ImageDraw, ImageFont
     font_file = Path("C:/Windows/Fonts/consola.ttf")
     font = ImageFont.truetype(str(font_file), font_size) if font_file.exists() \
         else ImageFont.load_default()
+    if light:
+        bold_file = Path("C:/Windows/Fonts/consolab.ttf")
+        bold = ImageFont.truetype(str(bold_file), font_size) if bold_file.exists() else font
+        return _console_png_light(lines, path, title, font, bold, font_size)
     cw, ch = font.getlength("M"), int(font_size * 1.32)
     wrap = 118
     wrapped = []
@@ -437,5 +442,31 @@ def console_png(lines, path, title=None, width_chars=None, font_size=15):
         elif line.lstrip().startswith(("+", "|")):
             color = "#CCCCCC"
         draw.text((pad, pad + bar + k * ch), line[:width_chars], font=font, fill=color)
+    img.save(path)
+    return path
+
+
+def _console_png_light(lines, path, title, font, bold, font_size):
+    from PIL import Image, ImageDraw
+    cw, ch = font.getlength("M"), int(font_size * 1.32)
+    wrap = 118
+    wrapped = []
+    for line in lines:
+        while len(line) > wrap:
+            wrapped.append(line[:wrap])
+            line = "    " + line[wrap:]
+        wrapped.append(line)
+    pad = int(font_size * 0.9)
+    bar = int(font_size * 2) if title else 0
+    width = pad * 2 + int(cw * max(len(s) for s in wrapped)) + 2
+    img = Image.new("RGB", (width, pad * 2 + bar + ch * len(wrapped)), "white")
+    draw = ImageDraw.Draw(img)
+    if title:
+        draw.rectangle([0, 0, img.width - 1, bar], fill="#E8E8E8", outline="#9A9A9A")
+        draw.text((pad, (bar - font_size) // 2), title, font=font, fill="#333333")
+    for k, line in enumerate(wrapped):
+        heading = line.startswith("===") or (line.isupper() and line.strip())
+        draw.text((pad, pad + bar + k * ch), line, font=bold if heading else font, fill="black")
+    draw.rectangle([0, 0, img.width - 1, img.height - 1], outline="#9A9A9A")
     img.save(path)
     return path

@@ -224,7 +224,7 @@ shots = [(lines[:start_4 - 1], "ручной расчет, модели и зн�
          (lines[start_6:], "подбор нелинейной регрессии")]
 for k, (chunk, caption) in enumerate(shots, 1):
     png = RES / f"console_{k}.png"
-    console_png(chunk, png, title="run_lab5.bat")
+    console_png(chunk, png, title="run_lab5.bat", font_size=26, light=True)
     rep.figure(png, "Вывод программы lab5.py: " + caption, 16.0)
 
 rep.h1("Выводы")
