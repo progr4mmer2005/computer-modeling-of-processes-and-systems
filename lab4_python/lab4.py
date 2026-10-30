@@ -52,7 +52,7 @@ for name, (equation, f) in models.items():
     else:
         r2[name] = np.corrcoef(y, f(x))[0, 1] ** 2
     print(f"{name:17} {equation:38} R² = {r2[name]:.4f}")
-print("Для степенной и экспоненциальной моделей R² считается по ln y (как в методичке и в Excel)")
+print("Для степенной и экспоненциальной моделей R² считается по ln y (как требует методичка)")
 best = max(r2, key=r2.get)
 print(f"Лучшая модель: {best}, R² = {r2[best]:.4f} ({r2[best] * 100:.1f} %)")
 
