@@ -69,7 +69,7 @@ elif abs(r) < 0.7:
 else:
     closeness = "сильная"
 direction = "прямая" if r > 0 else "обратная"
-print(f"r = {r:.4f}: связь вероятностная, {direction}; теснота связи - {closeness} (таблица 4 методички)")
+print(f"r = {r:.4f}: связь вероятностная, {direction}; теснота связи - {closeness}")
 F_linear = r ** 2 / (1 - r ** 2) * (n - 2)
 F_critical = stats.f.ppf(0.95, 1, n - 2)
 print(f"F = {F_linear:.3f}, критическое F(0,05; 1; {n - 2}) = {F_critical:.3f}")
