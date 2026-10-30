@@ -52,7 +52,7 @@ for name, (equation, f) in models.items():
     else:
         r2[name] = np.corrcoef(y, f(x))[0, 1] ** 2
     print(f"{name:17} {equation:38} R² = {r2[name]:.4f}")
-print("Для степенной и экспоненциальной моделей R² считается по ln y (как требует методичка)")
+print("Для степенной и экспоненциальной моделей R² считается по ln y")
 best = max(r2, key=r2.get)
 print(f"Лучшая модель: {best}, R² = {r2[best]:.4f} ({r2[best] * 100:.1f} %)")
 
@@ -66,7 +66,7 @@ elif abs(r) < 0.7:
 else:
     closeness = "сильная"
 direction = "прямая" if r > 0 else "обратная"
-print(f"r = {r:.4f}: связь вероятностная, {direction}; теснота связи - {closeness} (таблица 4 методички)")
+print(f"r = {r:.4f}: связь вероятностная, {direction}; теснота связи - {closeness}")
 R2 = r ** 2
 R2_adj = 1 - (1 - R2) * (n - 1) / (n - 2)
 F = R2 / (1 - R2) * (n - 2)
