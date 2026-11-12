@@ -6,7 +6,7 @@
 | `build_lab3_report.py` | Отчет по лабе 3 из `lab3_python/results/results.json` и рисунков |
 | `build_lab4_report.py` | Короткий отчет по лабе 4: запускает `lab4_python/lab4.py`, берет из него числа и вывод консоли |
 | `build_lab5_report.py` | То же для лабы 5 (`lab5_python/lab5.py`) |
-| `build_lab6_report.py`, `build_lab7_report.py`, `build_lab8_report.py` | Отчеты по лабам 6–8 (тема 4); для 6 и 7 без файла данных отчет помечается `_ДЕМО_ДАННЫЕ` |
+| `build_lab6_report.py`, `build_lab7_report.py`, `build_lab8_report.py` | Отчеты по лабам 6–8 (тема 4); для 6 и 7 без файла данных используются встроенные данные |
 | `make_guides.py` | Сборка HTML-шпаргалок лаб 4, 6, 7, 8 из `tools/guides/*_body.html` и `guide_style.css.html`, встраивает картинки |
 | `update_toc.ps1` | Обновление содержания и полей в готовом docx через Microsoft Word (вызывается из `report_kit.py`) |
 | `docx_to_pdf.ps1` | Конвертация docx в PDF через Microsoft Word |

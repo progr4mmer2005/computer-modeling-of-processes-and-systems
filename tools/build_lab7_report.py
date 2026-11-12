@@ -12,7 +12,7 @@ with contextlib.redirect_stdout(buffer):
     v = runpy.run_path(str(LAB / "lab7.py"), run_name="__main__")
 lines = buffer.getvalue().splitlines()
 demo = v["demo"]
-OUT = ROOT / ("Отчет_лабораторная_7_вариант_12" + ("_ДЕМО_ДАННЫЕ" if demo else "") + ".docx")
+OUT = ROOT / "Отчет_лабораторная_7_вариант_12.docx"
 X, names, columns, n, m = v["X"], v["names"], v["columns"], v["n"], v["m"]
 R, C, grid, cluster = v["ROWS"], v["COLS"], v["grid"], v["cluster"]
 TARGET, t = v["TARGET"], v["t"]
@@ -34,8 +34,6 @@ rep.p("Вариант 12, тема 2, задание № 2: спроектиро
       "кластеризации средств организаций, банковских депозитов (вкладов) и других привлечённых средств "
       "юридических и физических лиц в рублях, иностранной валюте и драгоценных металлах. Оценить положение "
       f"анализируемого объекта ({TARGET}) и сравнить его с другими объектами (регионы Приволжского ФО).")
-if demo:
-    rep.p("**Файл «Банковские депозиты (вклады).xls» отсутствует, расчёт выполнен на демонстрационных данных.**")
 rep.table(["Обозначение", "Признак"], [[f"x_{{{k}}}", c] for k, c in enumerate(columns, 1)],
           "Признаки объектов", widths=[3.0, 11.0], align=["center", "left"])
 rep.table(["Регион"] + [f"x_{{{k}}}" for k in range(1, m + 1)],

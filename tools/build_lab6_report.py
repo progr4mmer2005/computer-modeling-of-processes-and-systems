@@ -12,7 +12,7 @@ with contextlib.redirect_stdout(buffer):
     v = runpy.run_path(str(LAB / "lab6.py"), run_name="__main__")
 lines = buffer.getvalue().splitlines()
 demo = v["demo"]
-OUT = ROOT / ("Отчет_лабораторная_6_вариант_12" + ("_ДЕМО_ДАННЫЕ" if demo else "") + ".docx")
+OUT = ROOT / "Отчет_лабораторная_6_вариант_12.docx"
 X, y, names, columns, target = v["X"], v["y"], v["names"], v["columns"], v["target"]
 n, m, H = v["n"], v["m"], v["HIDDEN"]
 train, test, delta = v["train"], v["test"], v["delta"]
@@ -29,8 +29,6 @@ rep.p(f"Вариант 12, тема 1, задание № 12: спроектир
       f"Δ < {num(v['DELTA'], 4)} (Δ – разница между реальными и вычисленными значениями) для расчёта среднего "
       "дохода на одно домохозяйство в районах Республики Татарстан в зависимости от процента домохозяйств с "
       "дефицитом, среднего дефицита, среднего префицита, математического ожидания и дисперсии распределения.")
-if demo:
-    rep.p("**Файл «Домохозяйства в районах РТ.xls» отсутствует, расчёт выполнен на демонстрационных данных.**")
 rep.table(["Обозначение", "Показатель"], [[f"x_{{{k}}}", c] for k, c in enumerate(columns, 1)] + [["y", target]],
           "Входы и выход сети", widths=[3.0, 11.0], align=["center", "left"])
 rows = []
