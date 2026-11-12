@@ -75,9 +75,9 @@ print(f"Районов: {n}, входов: {m}, выход: {target}")
 for k, c in enumerate(columns, 1):
     print(f"  x{k} = {c}: от {X[:, k - 1].min():.2f} до {X[:, k - 1].max():.2f}")
 print(f"  y = {target}: от {y.min():.2f} до {y.max():.2f}")
-print("Первые 5 районов:")
-for i in range(5):
-    print(f"  {names[i]:18}" + "".join(f"{v:12.2f}" for v in X[i]) + f"{y[i]:12.2f}")
+print(f"  {'№':>3} {'район':18}{'x1':>7}{'x2':>8}{'x3':>8}{'x4':>8}{'x5':>9}{'y':>8}")
+for i in range(n):
+    print(f"  {i + 1:3} {names[i]:18}{X[i, 0]:7.1f}{X[i, 1]:8.0f}{X[i, 2]:8.0f}{X[i, 3]:8.0f}{X[i, 4]:9.2f}{y[i]:8.0f}")
 
 print("\n2. НОРМИРОВКА И РАЗБИЕНИЕ")
 x_min, x_max, y_min, y_max = X.min(0), X.max(0), y.min(), y.max()

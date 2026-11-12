@@ -30,16 +30,12 @@ rep.p(f"Вариант 12, тема 1, задание № 12: спроектир
       "дефицитом, среднего дефицита, среднего префицита, математического ожидания и дисперсии распределения.")
 rep.table(["Обозначение", "Показатель"], [[f"x_{{{k}}}", c] for k, c in enumerate(columns, 1)] + [["y", target]],
           "Входы и выход сети", widths=[3.0, 11.0], align=["center", "left"])
-rows = []
-half = (n + 1) // 2
-for i in range(half):
-    row = []
-    for k in (i, i + half):
-        row += [names[k], num(y[k], 0)] if k < n else ["", ""]
-    rows.append(row)
-rep.p(f"Районов n = {n}. Значения выхода приведены в таблице 2, все исходные данные – в выводе программы.")
-rep.table(["Район", "y", "Район", "y"], rows, "Средний доход по районам", widths=[4.5, 2.5, 4.5, 2.5], size=8,
-          align=["left", "center", "left", "center"])
+rows = [[i + 1, names[i], num(X[i, 0], 1), num(X[i, 1], 0), num(X[i, 2], 0), num(X[i, 3], 0), num(X[i, 4], 2),
+         num(y[i], 0)] for i in range(n)]
+rep.p(f"Районов n = {n}, исходные данные приведены в таблице 2.")
+rep.table(["№", "Район", "x_{1}", "x_{2}", "x_{3}", "x_{4}", "x_{5}", "y"], rows, "Исходные данные по районам",
+          widths=[0.9, 4.0, 1.6, 1.8, 1.8, 1.8, 1.7, 1.9], size=8,
+          align=["center", "left"] + ["center"] * 6)
 
 rep.h1("Решение")
 rep.h2("1. Нормировка и выборки")
@@ -89,7 +85,8 @@ s4 = next(i for i, s in enumerate(lines) if s.startswith("4. ОБУЧЕНИЕ"))
 s5 = next(i for i, s in enumerate(lines) if s.startswith("5. РЕЗУЛЬТАТЫ"))
 s6 = next(i for i, s in enumerate(lines) if s.startswith("6. СОХРАНЕНИЕ"))
 summary = [s for s in lines[s5:s6] if "выборка:" in s]
-shots = [(lines[:s4 - 1], "данные, нормировка, структура"),
+s2 = next(i for i, s in enumerate(lines) if s.startswith("2. НОРМИРОВКА"))
+shots = [(lines[:s2 - 1], "исходные данные"), (lines[s2:s4 - 1], "нормировка и структура сети"),
          (lines[s4:s5 - 1] + [""] + summary + [""] + lines[s6:], "обучение и сохранение")]
 for k, (chunk, caption) in enumerate(shots, 1):
     png = RES / f"console_{k}.png"
