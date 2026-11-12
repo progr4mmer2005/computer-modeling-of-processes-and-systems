@@ -11,7 +11,6 @@ buffer = io.StringIO()
 with contextlib.redirect_stdout(buffer):
     v = runpy.run_path(str(LAB / "lab7.py"), run_name="__main__")
 lines = buffer.getvalue().splitlines()
-demo = v["demo"]
 OUT = ROOT / "Отчет_лабораторная_7_вариант_12.docx"
 X, names, columns, n, m = v["X"], v["names"], v["columns"], v["n"], v["m"]
 R, C, grid, cluster = v["ROWS"], v["COLS"], v["grid"], v["cluster"]
