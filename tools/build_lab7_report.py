@@ -17,6 +17,10 @@ R, C, grid, cluster = v["ROWS"], v["COLS"], v["grid"], v["cluster"]
 TARGET, t = v["TARGET"], v["t"]
 
 
+def big(x):
+    return f"{x:,.0f}".replace(",", " ")
+
+
 def label(j):
     return f"{int(grid[j, 0]) + 1}.{int(grid[j, 1]) + 1}"
 
@@ -32,21 +36,23 @@ rep.h1("Задание")
 rep.p("Вариант 12, тема 2, задание № 2: спроектировать, обучить и сохранить нейронную сеть Кохонена для "
       "кластеризации средств организаций, банковских депозитов (вкладов) и других привлечённых средств "
       "юридических и физических лиц в рублях, иностранной валюте и драгоценных металлах. Оценить положение "
-      f"анализируемого объекта ({TARGET}) и сравнить его с другими объектами (регионы Приволжского ФО).")
+      f"анализируемого объекта ({TARGET}) и сравнить его с другими объектами (регионы того же федерального округа).")
+rep.p("Средства организаций – сумма средств на счетах организаций и депозитов юридических лиц, млн руб.")
 rep.table(["Обозначение", "Признак"], [[f"x_{{{k}}}", c] for k, c in enumerate(columns, 1)],
           "Признаки объектов", widths=[3.0, 11.0], align=["center", "left"])
 rep.table(["Регион"] + [f"x_{{{k}}}" for k in range(1, m + 1)],
-          [[names[i]] + [num(x, 1) for x in X[i]] for i in range(n)],
+          [[names[i]] + [big(x) for x in X[i]] for i in range(n)],
           f"Исходные данные, {n} регионов", widths=[5.5] + [2.4] * m, size=8, align=["left"] + ["center"] * m)
 
 rep.h1("Решение")
 rep.h2("1. Подготовка данных")
 lo, hi = X.min(0), X.max(0)
-rep.p("Суммы по регионам различаются в сотни раз, поэтому признаки логарифмируются и нормируются в [0; 1]:")
-rep.formula("z = (lg x − lg x_{min}) / (lg x_{max} − lg x_{min}).")
+rep.p("Суммы по регионам различаются в тысячи раз, у части регионов есть нулевые значения, поэтому признаки "
+      "логарифмируются со сдвигом на 1 и нормируются в [0; 1]:")
+rep.formula("z = (lg(x + 1) − lg(x_{min} + 1)) / (lg(x_{max} + 1) − lg(x_{min} + 1)).")
 zt = v["Z"][t, 0]
-rep.p(f"Для {TARGET}, x_{{1}} = {num(X[t, 0], 1)}: z = (lg {num(X[t, 0], 1)} − lg {num(lo[0], 1)}) / "
-      f"(lg {num(hi[0], 1)} − lg {num(lo[0], 1)}) = {num(zt, 4)}.")
+rep.p(f"Для {TARGET}, x_{{1}} = {big(X[t, 0])}: z = (lg {big(X[t, 0] + 1)} − lg {big(lo[0] + 1)}) / "
+      f"(lg {big(hi[0] + 1)} − lg {big(lo[0] + 1)}) = {num(zt, 4)}.")
 
 rep.h2("2. Карта Кохонена и обучение")
 rep.p(f"Карта {R}×{C} = {R * C} нейронов, каждый нейрон – кластер с вектором весов длины {m}. Обучение без "
@@ -64,9 +70,9 @@ rows = []
 for j in range(R * C):
     members = [names[i] for i in range(n) if cluster[i] == j]
     if members:
-        rows.append([label(j), len(members), ", ".join(members)] + [num(x, 1) for x in v["centers"][j]])
+        rows.append([label(j), len(members), ", ".join(members)] + [big(x) for x in v["centers"][j]])
 rep.table(["Кластер", "Число", "Регионы"] + [f"x_{{{k}}}" for k in range(1, m + 1)], rows,
-          "Состав кластеров и средние значения признаков, млрд руб.",
+          "Состав кластеров и средние значения признаков, млн руб.",
           widths=[1.6, 1.3, 7.0] + [1.65] * m, size=7.5, align=["center", "center", "left"] + ["center"] * m)
 rep.figure(RES / "03_clusters.png", f"Карта Кохонена {R}×{C} с регионами", 15.0)
 rep.figure(RES / "02_feature_maps.png", "Раскраска карты по признакам", 15.0)
@@ -77,17 +83,17 @@ same = [names[i] for i in range(n) if cluster[i] == tj and i != t]
 ranks = [int((X[:, k] > X[t, k]).sum()) + 1 for k in range(m)]
 rep.p(f"{TARGET} отнесена к кластеру {label(tj)}" + (f" вместе с регионами: {', '.join(same)}." if same else "."))
 rep.table(["Признак", "Значение", "Среднее", f"Место из {n}"],
-          [[columns[k], num(X[t, k], 1), num(X[:, k].mean(), 1), ranks[k]] for k in range(m)],
+          [[columns[k], big(X[t, k]), big(X[:, k].mean()), ranks[k]] for k in range(m)],
           f"Показатели: {TARGET}", widths=[8.0, 2.2, 2.2, 2.2], align=["left", "center", "center", "center"])
 
-rep.h2("5. Сравнение с регионами Приволжского ФО")
+rep.h2(f"5. Сравнение с регионами: {v['DISTRICT']}")
 rows_cmp = v["rows_cmp"]
-rep.table(["Регион", "Кластер", "Расстояние до объекта", "Всего, млрд руб."],
-          [[TARGET, label(tj), "0", num(X[t].sum(), 1)]] + [[s, lab, num(d, 3), num(tot, 1)]
+rep.table(["Регион", "Кластер", "Расстояние до объекта", "Всего, млн руб."],
+          [[TARGET, label(tj), "0", big(X[t].sum())]] + [[s, lab, num(d, 3), big(tot)]
                                                             for d, s, lab, tot in rows_cmp],
-          "Сравнение с регионами ПФО (расстояние в нормированных признаках)", widths=[6.0, 2.0, 3.5, 3.0],
+          f"Сравнение с регионами округа: {v['DISTRICT']} (расстояние в нормированных признаках)", widths=[6.0, 2.0, 3.5, 3.0],
           size=8, align=["left", "center", "center", "center"])
-rep.figure(RES / "04_compare.png", "Структура средств по регионам ПФО", 15.0)
+rep.figure(RES / "04_compare.png", f"Структура средств по регионам округа: {v['DISTRICT']}", 15.0)
 
 rep.h2("6. Вывод программы")
 s4 = next(i for i, s in enumerate(lines) if s.startswith("4. КЛАСТЕРЫ"))
@@ -104,7 +110,7 @@ rep.p(f"1. Карта Кохонена {R}×{C} разбила {n} регион�
       "кластере оказались регионы с близкими объёмами и структурой средств.")
 rep.p(f"2. {TARGET} входит в кластер {label(tj)}, по признакам занимает места {', '.join(map(str, ranks))} "
       f"из {n}.")
-rep.p(f"3. Среди регионов Приволжского ФО {TARGET} на {v['pfo_rank']}-м месте по сумме средств; ближе всего по "
+rep.p(f"3. Среди регионов округа ({v['DISTRICT']}) {TARGET} на {v['pfo_rank']}-м месте по сумме средств; ближе всего по "
       f"структуре {rows_cmp[0][1]}, дальше всего {rows_cmp[-1][1]}.")
 
 rep.structural("Приложение А")
