@@ -1,6 +1,4 @@
 numpy
 matplotlib
-xlrd
-openpyxl
 python-docx
 pillow

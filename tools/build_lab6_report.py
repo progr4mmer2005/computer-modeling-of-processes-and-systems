@@ -11,7 +11,6 @@ buffer = io.StringIO()
 with contextlib.redirect_stdout(buffer):
     v = runpy.run_path(str(LAB / "lab6.py"), run_name="__main__")
 lines = buffer.getvalue().splitlines()
-demo = v["demo"]
 OUT = ROOT / "Отчет_лабораторная_6_вариант_12.docx"
 X, y, names, columns, target = v["X"], v["y"], v["names"], v["columns"], v["target"]
 n, m, H = v["n"], v["m"], v["HIDDEN"]
