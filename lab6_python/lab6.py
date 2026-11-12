@@ -148,7 +148,7 @@ print(f"Тестовая выборка:  макс |Δ| = {test_max:.5f}, сре
 print("\n6. СОХРАНЕНИЕ И ИСПОЛЬЗОВАНИЕ СЕТИ")
 np.savez(folder / "network.npz", W1=W1, b1=b1, W2=W2, b2=b2, x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max)
 saved = np.load(folder / "network.npz")
-new = X.mean(0)
+new = np.round(X.mean(0), 2)
 xn = (new - saved["x_min"]) / (saved["x_max"] - saved["x_min"])
 answer = float(((1 / (1 + np.exp(-(xn @ saved["W1"] + saved["b1"])))) @ saved["W2"] + saved["b2"])[0])
 answer = answer * (saved["y_max"] - saved["y_min"]) + saved["y_min"]

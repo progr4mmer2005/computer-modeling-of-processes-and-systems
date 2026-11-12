@@ -78,7 +78,8 @@ rep.figure(RES / "03_districts.png", "Доход по районам: факт �
 
 rep.h2("5. Сохранение сети")
 rep.p(f"Веса, смещения и границы нормировки сохранены в файл results/network.npz. Сеть загружена из файла и "
-      f"применена к новому району со средними значениями входов: y = {num(v['answer'], 1)}.")
+      f"применена к новому району со средними значениями входов: y = {num(v['answer'], 1)}. Расчёт по произвольным "
+      f"значениям выполняет программа predict.py: она загружает сохранённую сеть и в цикле запрашивает пять входов.")
 
 rep.h2("6. Вывод программы")
 s4 = next(i for i, s in enumerate(lines) if s.startswith("4. ОБУЧЕНИЕ"))
@@ -86,7 +87,9 @@ s5 = next(i for i, s in enumerate(lines) if s.startswith("5. РЕЗУЛЬТАТ�
 s6 = next(i for i, s in enumerate(lines) if s.startswith("6. СОХРАНЕНИЕ"))
 summary = [s for s in lines[s5:s6] if "выборка:" in s]
 s2 = next(i for i, s in enumerate(lines) if s.startswith("2. НОРМИРОВКА"))
-shots = [(lines[:s2 - 1], "исходные данные"), (lines[s2:s4 - 1], "нормировка и структура сети"),
+head = next(i for i, s in enumerate(lines) if "№ район" in s)
+data_shot = lines[:head + 6] + [f"  ... (всего {n} районов, полностью – в таблице 2)"]
+shots = [(data_shot, "исходные данные (первые 5 районов)"), (lines[s2:s4 - 1], "нормировка и структура сети"),
          (lines[s4:s5 - 1] + [""] + summary + [""] + lines[s6:], "обучение и сохранение")]
 for k, (chunk, caption) in enumerate(shots, 1):
     png = RES / f"console_{k}.png"
@@ -105,7 +108,9 @@ rep.p("4. Обученная сеть сохранена в файл и испо
 rep.structural("Приложение А")
 rep.p("Листинг программы", align="center", indent=False)
 rep.code_columns([("lab6.py", (LAB / "lab6.py").read_text(encoding="utf-8")),
-                  ("run_lab6.bat", (LAB / "run_lab6.bat").read_text(encoding="utf-8"))])
+                  ("run_lab6.bat", (LAB / "run_lab6.bat").read_text(encoding="utf-8")),
+                  ("predict.py", (LAB / "predict.py").read_text(encoding="utf-8")),
+                  ("run_predict.bat", (LAB / "run_predict.bat").read_text(encoding="utf-8"))])
 
 rep.save(OUT)
 print("saved", OUT)
