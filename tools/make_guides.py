@@ -6,7 +6,7 @@ TOOLS = Path(__file__).parent
 ROOT = TOOLS.parent
 style = (TOOLS / "guide_style.css.html").read_text(encoding="utf-8")
 
-for lab in (4, 5):
+for lab in (4, 6, 7, 8):
     body = (TOOLS / "guides" / f"lab{lab}_body.html").read_text(encoding="utf-8")
     page = ('<!doctype html>\n<html lang="ru">\n<head>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
