@@ -18,7 +18,7 @@ def embed(match, base):
     attrs = before + after
     original = re.search(r'data-src="([^"]+)"', attrs)
     path = original.group(1) if original else src
-    if path.startswith("data:"):
+    if path.startswith("data:") or not (base / path).exists():
         return match.group(0)
     data = base64.b64encode((base / path).resolve().read_bytes()).decode("ascii")
     attrs = re.sub(r'\s*data-src="[^"]+"', "", attrs).strip()
