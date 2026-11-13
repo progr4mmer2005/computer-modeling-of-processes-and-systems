@@ -71,8 +71,8 @@ for j in range(R * C):
 rep.table(["Кластер", "Число", "Регионы"] + [f"x_{{{k}}}" for k in range(1, m + 1)], rows,
           "Состав кластеров и средние значения признаков, млн руб.",
           widths=[1.6, 1.3, 7.0] + [1.65] * m, size=7.5, align=["center", "center", "left"] + ["center"] * m)
-rep.figure(RES / "03_clusters.png", f"Карта Кохонена {R}×{C} с регионами", 15.0)
-rep.figure(RES / "02_feature_maps.png", "Раскраска карты по признакам", 15.0)
+rep.figure(RES / "03_clusters.png", f"Карта Кохонена {R}×{C} с регионами", 16.5)
+rep.figure(RES / "02_feature_maps.png", "Раскраска карты по признакам", 16.5)
 
 rep.h2("4. Положение анализируемого объекта")
 tj = cluster[t]

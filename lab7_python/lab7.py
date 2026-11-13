@@ -191,37 +191,52 @@ pfo_rank = sorted([X[t].sum()] + [r[3] for r in rows_cmp], reverse=True).index(X
 print(f"По сумме средств {TARGET} на {pfo_rank}-м месте из {len(rows_cmp) + 1} регионов округа")
 print(f"Ближайший по структуре: {rows_cmp[0][1]}, самый далёкий: {rows_cmp[-1][1]}")
 
-fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+short = {"Республика": "Респ.", "область": "обл.", "автономный округ": "АО", "автономная область": "АО"}
+fig, axes = plt.subplots(2, 2, figsize=(6.5, 6.4))
 for k, ax in enumerate(axes.flat):
     values = 10 ** (W[:, k] * (high[k] - low[k]) + low[k]) - 1
-    im = ax.imshow(values.reshape(ROWS, COLS), cmap="YlOrRd")
+    shown = np.log10(values + 1).reshape(ROWS, COLS)
+    ax.imshow(shown, cmap="YlOrRd")
+    middle = (shown.min() + shown.max()) / 2
     for j in range(ROWS * COLS):
-        ax.text(grid[j, 1], grid[j, 0], f"{values[j]:.0f}", ha="center", va="center", fontsize=9)
-    ax.set_title(columns[k], fontsize=9)
+        r, c = int(grid[j, 0]), int(grid[j, 1])
+        ax.text(c, r, f"{values[j]:,.0f}".replace(",", " "), ha="center", va="center", fontsize=8,
+                color="white" if shown[r, c] > middle else "black")
+    title = columns[k].replace(", млн руб.", "").replace(" и драгметаллах", "\nи драгметаллах")
+    ax.set_title(title, fontsize=8)
     ax.set_xticks(range(COLS))
     ax.set_yticks(range(ROWS))
-    ax.set_xticklabels(range(1, COLS + 1))
-    ax.set_yticklabels(range(1, ROWS + 1))
-    fig.colorbar(im, ax=ax, shrink=0.8)
-fig.suptitle("Раскраска карты по признакам (веса нейронов, млн руб.)")
+    ax.set_xticklabels(range(1, COLS + 1), fontsize=8)
+    ax.set_yticklabels(range(1, ROWS + 1), fontsize=8)
+fig.suptitle("Веса нейронов по признакам, млн руб. (строка, столбец = номер кластера)", fontsize=9)
 fig.tight_layout()
-fig.savefig(folder / "02_feature_maps.png", dpi=130)
+fig.savefig(folder / "02_feature_maps.png", dpi=200)
 plt.close(fig)
 
-fig, ax = plt.subplots(figsize=(13, 10))
+fig, ax = plt.subplots(figsize=(6.5, 8.0))
 counts = np.bincount(cluster, minlength=ROWS * COLS).reshape(ROWS, COLS)
-ax.imshow(counts, cmap="Blues", alpha=0.6)
+ax.imshow(counts, cmap="Blues", alpha=0.35, aspect="auto")
 for j in range(ROWS * COLS):
     members = [names[i] for i in range(n) if cluster[i] == j]
-    text = "\n".join(("► " if s == TARGET else "") + s.replace("Республика", "Респ.").replace("область", "обл.")
-                     for s in members)
-    ax.text(grid[j, 1], grid[j, 0], f"кластер {int(grid[j, 0]) + 1}.{int(grid[j, 1]) + 1}\n{text}",
-            ha="center", va="center", fontsize=7)
+    lines = []
+    for s in members:
+        label = s
+        for full, cut in short.items():
+            label = label.replace(full, cut)
+        lines.append(("► " if s == TARGET else "") + label)
+    ax.text(grid[j, 1], grid[j, 0] - 0.47, f"кластер {int(grid[j, 0]) + 1}.{int(grid[j, 1]) + 1} ({len(members)})",
+            ha="center", va="top", fontsize=8.5, fontweight="bold")
+    ax.text(grid[j, 1], grid[j, 0] + 0.05, "\n".join(lines), ha="center", va="center", fontsize=7.5,
+            linespacing=1.15)
+for k in range(1, ROWS):
+    ax.axhline(k - 0.5, color="gray", lw=0.8)
+for k in range(1, COLS):
+    ax.axvline(k - 0.5, color="gray", lw=0.8)
 ax.set_xticks([])
 ax.set_yticks([])
-ax.set_title(f"Карта Кохонена {ROWS}×{COLS}: регионы по кластерам (► {TARGET})")
+ax.set_title(f"Карта Кохонена {ROWS}×{COLS}: регионы по кластерам (► {TARGET})", fontsize=9)
 fig.tight_layout()
-fig.savefig(folder / "03_clusters.png", dpi=130)
+fig.savefig(folder / "03_clusters.png", dpi=200)
 plt.close(fig)
 
 print("\nГрафики сохранены в папку results")
