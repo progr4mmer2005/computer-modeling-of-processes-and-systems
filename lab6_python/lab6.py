@@ -102,14 +102,11 @@ print("\n4. ОБУЧЕНИЕ МЕТОДОМ ОБРАТНОГО РАСПРОСТ�
 print(f"Скорость обучения η = {RATE}, момент α = {MOMENTUM}")
 print(f"Пример распознан, если |y' - ŷ'| < Δ = {DELTA}; обучение до 100 % распознанных или {MAX_EPOCHS} эпох")
 A, t = Xn[train], yn[train][:, None]
-history = []
 for epoch in range(1, MAX_EPOCHS + 1):
     h = 1 / (1 + np.exp(-(A @ W1 + b1)))
     out = h @ W2 + b2
     e = out - t
     worst = np.abs(e).max()
-    if epoch == 1 or epoch % 100 == 0:
-        history.append((epoch, (e ** 2).mean(), worst))
     if epoch % 20000 == 0:
         print(f"  эпоха {epoch:6}: СКО = {(e ** 2).mean():.2e}, макс |Δ| = {worst:.5f}, "
               f"распознано {np.mean(np.abs(e) < DELTA) * 100:.0f} %")
@@ -121,7 +118,6 @@ for epoch in range(1, MAX_EPOCHS + 1):
     for k, (p, g) in enumerate(zip((W1, b1, W2, b2), grads)):
         velocity[k] = MOMENTUM * velocity[k] - RATE * g
         p += velocity[k]
-history.append((epoch, (e ** 2).mean(), worst))
 print(f"Остановка на эпохе {epoch}: макс |Δ| на обучающей выборке = {worst:.8f} "
       f"({'меньше' if worst < DELTA else 'НЕ меньше'} {DELTA})")
 
@@ -156,44 +152,6 @@ print("Сеть сохранена в results/network.npz и загружена 
 print("Новый район со средними значениями входов: " + ", ".join(f"x{k + 1} = {v:.2f}" for k, v in enumerate(new)))
 print(f"Ответ сохранённой сети: y = {answer:.1f}")
 
-h = np.array(history)
-fig, ax = plt.subplots(figsize=(8, 4.5))
-ax.semilogy(h[:, 0], h[:, 2], label="макс |Δ| (обучающая)")
-ax.semilogy(h[:, 0], h[:, 1], label="СКО (обучающая)")
-ax.axhline(DELTA, color="red", ls="--", label=f"Δ = {DELTA}")
-ax.set_xlabel("эпоха")
-ax.set_ylabel("ошибка (нормированная)")
-ax.legend()
-ax.grid(alpha=0.3)
-fig.tight_layout()
-fig.savefig(folder / "01_training.png", dpi=130)
-plt.close(fig)
-
-fig, ax = plt.subplots(figsize=(6, 6))
-ax.scatter(y[train], y_hat[train], label="обучающая")
-ax.scatter(y[test], y_hat[test], marker="s", label="тестовая")
-ax.plot([y.min(), y.max()], [y.min(), y.max()], color="gray", lw=1)
-ax.set_xlabel("фактический доход")
-ax.set_ylabel("ответ сети")
-ax.legend()
-ax.grid(alpha=0.3)
-fig.tight_layout()
-fig.savefig(folder / "02_fact_vs_net.png", dpi=130)
-plt.close(fig)
-
-order = np.argsort(y)
-fig, ax = plt.subplots(figsize=(11, 4.5))
-ax.plot(range(n), y[order], "o-", label="факт")
-ax.plot(range(n), y_hat[order], "x--", label="сеть")
-ax.set_xticks(range(n))
-ax.set_xticklabels([names[i] for i in order], rotation=90, fontsize=7)
-ax.set_ylabel(target)
-ax.legend()
-ax.grid(alpha=0.3)
-fig.tight_layout()
-fig.savefig(folder / "03_districts.png", dpi=130)
-plt.close(fig)
-
 fig, ax = plt.subplots(figsize=(7, 4))
 ax.axis("off")
 xs_in, xs_h, x_out = 0.1, 0.5, 0.9
@@ -212,7 +170,7 @@ for k, a in enumerate(pos_in, 1):
 ax.text(x_out + 0.03, 0.5, "y", va="center")
 ax.set_title(f"Персептрон {m}-{HIDDEN}-1")
 fig.tight_layout()
-fig.savefig(folder / "04_network.png", dpi=130)
+fig.savefig(folder / "01_network.png", dpi=130)
 plt.close(fig)
 
 print("\nГрафики сохранены в папку results")
