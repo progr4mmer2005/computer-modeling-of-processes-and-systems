@@ -191,15 +191,6 @@ pfo_rank = sorted([X[t].sum()] + [r[3] for r in rows_cmp], reverse=True).index(X
 print(f"По сумме средств {TARGET} на {pfo_rank}-м месте из {len(rows_cmp) + 1} регионов округа")
 print(f"Ближайший по структуре: {rows_cmp[0][1]}, самый далёкий: {rows_cmp[-1][1]}")
 
-fig, ax = plt.subplots(figsize=(8, 4))
-ax.plot(range(1, EPOCHS + 1), errors)
-ax.set_xlabel("эпоха")
-ax.set_ylabel("средняя ошибка квантования")
-ax.grid(alpha=0.3)
-fig.tight_layout()
-fig.savefig(folder / "01_training.png", dpi=130)
-plt.close(fig)
-
 fig, axes = plt.subplots(2, 2, figsize=(10, 8))
 for k, ax in enumerate(axes.flat):
     values = 10 ** (W[:, k] * (high[k] - low[k]) + low[k]) - 1
@@ -231,23 +222,6 @@ ax.set_yticks([])
 ax.set_title(f"Карта Кохонена {ROWS}×{COLS}: регионы по кластерам (► {TARGET})")
 fig.tight_layout()
 fig.savefig(folder / "03_clusters.png", dpi=130)
-plt.close(fig)
-
-fig, ax = plt.subplots(figsize=(10, 5))
-cmp_names = [TARGET] + [r[1] for r in rows_cmp]
-cmp_idx = [names.index(s) for s in cmp_names]
-bottom = np.zeros(len(cmp_idx))
-for k in range(m):
-    ax.bar(range(len(cmp_idx)), X[cmp_idx, k], bottom=bottom, label=columns[k])
-    bottom += X[cmp_idx, k]
-ax.set_xticks(range(len(cmp_idx)))
-ax.set_xticklabels([s.replace("Республика", "Респ.").replace("область", "обл.") for s in cmp_names],
-                   rotation=60, ha="right", fontsize=8)
-ax.set_ylabel("млн руб.")
-ax.legend(fontsize=7)
-ax.grid(alpha=0.3, axis="y")
-fig.tight_layout()
-fig.savefig(folder / "04_compare.png", dpi=130)
 plt.close(fig)
 
 print("\nГрафики сохранены в папку results")
