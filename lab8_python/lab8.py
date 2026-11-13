@@ -182,18 +182,6 @@ for k, p in peaks.items():
 print(f"Вариант {variant}: шаг между вершинами термов около {np.diff(peaks[variant][1:]).mean():.0f} Гц, "
       f"диапазон выхода {ac_table.min():.1f} ... {ac_table.max():.1f} Гц")
 
-fig, axes = plt.subplots(2, 2, figsize=(11, 7))
-for ax, (title, p) in zip(axes.flat, list(params.items()) + [("выход (базовые)", params["базовые"])]):
-    for t, m in zip(terms, eco_terms(u, p)):
-        ax.plot(u, m, label=t)
-    ax.set_title(f"Функции принадлежности: {title}")
-    ax.set_ylim(-0.05, 1.05)
-    ax.grid(alpha=0.3)
-axes[0, 0].legend(fontsize=8)
-fig.tight_layout()
-fig.savefig(folder / "01_eco_membership.png", dpi=130)
-plt.close(fig)
-
 fig, ax = plt.subplots(figsize=(8, 4.5))
 for k, c in eco_curves.items():
     ax.plot(sweep, c, label=k)
@@ -215,28 +203,6 @@ ax.set_zlabel("состояние")
 ax.set_title("Поверхность вывода (P-ground = P-bio = 0,5)")
 fig.tight_layout()
 fig.savefig(folder / "03_eco_surface.png", dpi=130)
-plt.close(fig)
-
-fig, axes = plt.subplots(3, 1, figsize=(9, 9))
-xs = np.linspace(0, 35, 351)
-for name, t in dt_terms.items():
-    axes[0].plot(xs, line(xs, *t), label=name)
-axes[0].set_title("Разность температур Δt, К")
-xs = np.linspace(0, 0.35, 351)
-for name, t in vt_terms.items():
-    axes[1].plot(xs, line(xs, *t), label=name)
-axes[1].set_title("Скорость изменения температуры Vt, К/мин")
-for name, t in out_terms(peaks[variant]).items():
-    axes[2].plot(f, line(f, *t), label=name)
-for v in peaks[variant]:
-    axes[2].annotate(f"{v:g}", (v, 1.02), ha="center", fontsize=8)
-axes[2].set_title(f"Частота вращения компрессора f, Гц (вариант {variant})")
-for ax in axes:
-    ax.set_ylim(-0.05, 1.12)
-    ax.grid(alpha=0.3)
-    ax.legend(fontsize=8, loc="center right")
-fig.tight_layout()
-fig.savefig(folder / "04_ac_membership.png", dpi=130)
 plt.close(fig)
 
 fig, ax = plt.subplots(figsize=(9, 4))
@@ -265,6 +231,7 @@ fig.tight_layout()
 fig.savefig(folder / "06_ac_surface.png", dpi=130)
 plt.close(fig)
 
+xs = np.linspace(0, 0.35, 351)
 fig, ax = plt.subplots(figsize=(8, 4.5))
 for k, p in peaks.items():
     ax.plot(xs * 100, [conditioner(20, v, p)[0] for v in xs], lw=2.5 if k == variant else 1,
